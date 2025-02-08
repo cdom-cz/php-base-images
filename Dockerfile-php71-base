@@ -19,8 +19,10 @@ RUN apk add --no-cache --virtual .build-deps \
 RUN docker-php-ext-configure xml --with-libxml-dir=/usr && docker-php-ext-install xml
 
 # Konfigurace a instalace rozšíření gd
-RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
-    docker-php-ext-install gd
+RUN docker-php-ext-configure gd \
+         --with-freetype-dir=/usr/include/freetype2 \
+         --with-jpeg-dir=/usr/include/ \
+       && docker-php-ext-install gd
 
 # Instalace dalších běžných PHP rozšíření
 RUN docker-php-ext-install pdo pdo_mysql mbstring opcache intl
