@@ -1,0 +1,16 @@
+services:
+  php56_app:
+    build:
+      context: .
+      dockerfile: Dockerfile-php56-base
+    container_name: php56_app
+    ports:
+      - "8080:80"
+
+  php71_app:
+    build:
+      context: .
+      dockerfile: Dockerfile-php71-base
+    container_name: php71_app
+    ports:
+      - "8081:80"

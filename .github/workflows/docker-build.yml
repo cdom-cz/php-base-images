@@ -1,0 +1,49 @@
+name: Build and Push Base Images
+
+on:
+  push:
+    tags:
+      - 'v*'   # Workflow se spustí pouze při pushnutí tagu začínajícího na "v"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          image: tonistiigi/binfmt:latest
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push PHP 5.6 base image
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t ghcr.io/${{ github.repository_owner }}/php56-base:${{ github.ref_name }} \
+            -f Dockerfile-php56-base \
+            --push .
+
+      - name: Build and push PHP 7.1 base image
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            -t ghcr.io/${{ github.repository_owner }}/php71-base:${{ github.ref_name }} \
+            -f Dockerfile-php71-base \
+            --push .

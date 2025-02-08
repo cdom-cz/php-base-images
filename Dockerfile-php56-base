@@ -1,0 +1,43 @@
+# Stage 1: Získání Composeru z oficiálního Composer image
+FROM composer:latest AS composer-stage
+
+# Stage 2: Hlavní image s PHP 5.6
+FROM php:5.6-fpm-alpine
+
+# Instalace runtime závislostí: nginx, supervisor, curl
+RUN apk add --no-cache nginx supervisor curl
+
+# Instalace build závislostí (skupina .build-deps)
+RUN apk add --no-cache --virtual .build-deps \
+      freetype-dev \
+      libjpeg-turbo-dev \
+      libpng-dev \
+      icu-dev \
+      libxml2-dev
+
+# Konfigurace a instalace rozšíření xml s předáním parametru --with-libxml-dir
+RUN docker-php-ext-configure xml --with-libxml-dir=/usr && docker-php-ext-install xml
+
+# Konfigurace a instalace rozšíření gd
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
+    docker-php-ext-install gd
+
+# Instalace dalších běžných PHP rozšíření
+RUN docker-php-ext-install pdo pdo_mysql mbstring opcache intl
+
+# Odstranění build závislostí pro zmenšení image
+RUN apk del .build-deps
+
+# Zkopírování Composeru z předchozí stage
+COPY --from=composer-stage /usr/bin/composer /usr/bin/composer
+
+# Kopírování konfigurace Supervisoru (soubor supervisord.conf musí být ve stejném adresáři)
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Nastavení pracovního adresáře
+WORKDIR /var/www/html
+
+# Exponování portu 80
+EXPOSE 80
+
+CMD ["/usr/bin/supervisord", "-n"]
