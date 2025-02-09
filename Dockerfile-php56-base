@@ -23,7 +23,7 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/freetype2 --wit
     && docker-php-ext-install gd
 
 # Instalace dalších běžných PHP rozšíření
-RUN CFLAGS="-O1" docker-php-ext-install pdo pdo_mysql opcache intl mbstring
+RUN docker-php-ext-install pdo pdo_mysql opcache intl mbstring
 
 # Odstranění build závislostí pro zmenšení image
 RUN apk del .build-deps
