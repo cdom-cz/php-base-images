@@ -25,9 +25,7 @@ RUN docker-php-ext-configure gd \
        && docker-php-ext-install gd
 
 # Instalace dalších běžných PHP rozšíření
-RUN docker-php-ext-install pdo pdo_mysql opcache intl
-
-RUN CFLAGS="-O1" docker-php-ext-install mbstring
+RUN CFLAGS="-O1" docker-php-ext-install pdo pdo_mysql opcache intl mbstring
 
 # Odstranění build závislostí pro zmenšení image
 RUN apk del .build-deps
