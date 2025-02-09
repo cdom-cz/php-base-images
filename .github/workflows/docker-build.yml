@@ -15,7 +15,7 @@ jobs:
 
       - name: Log in to GitHub Container Registry
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+          echo "${{ secrets.PAT_FOR_GHCR }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
 
       - name: Build and push PHP 5.6 base image
         run: |
