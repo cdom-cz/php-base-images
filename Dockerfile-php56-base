@@ -4,6 +4,8 @@ FROM composer:2.2 AS composer-stage
 # Stage 2: Hlavní image s PHP 5.6
 FROM php:5.6-fpm-alpine
 
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
 # Instalace runtime závislostí: nginx, supervisor, curl
 RUN apk add --no-cache nginx supervisor curl
 
@@ -15,15 +17,22 @@ RUN apk add --no-cache --virtual .build-deps \
       icu-dev \
       libxml2-dev
 
-# Konfigurace a instalace rozšíření xml s předáním parametru --with-libxml-dir
-RUN docker-php-ext-configure xml --with-libxml-dir=/usr && docker-php-ext-install xml
-
-# Konfigurace a instalace rozšíření gd
-RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/freetype2 --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install gd
-
-# Instalace dalších běžných PHP rozšíření
-RUN docker-php-ext-install pdo pdo_mysql opcache intl mbstring
+RUN install-php-extensions \
+            intl \
+            opcache \
+            bcmath \
+            mbstring \
+            pdo \
+            json \
+            xml \
+            soap \
+            pcntl \
+            gd \
+            exif \
+            pgsql pdo_pgsql \
+            mysqli pdo_mysql \
+            redis \
+            zip
 
 # Odstranění build závislostí pro zmenšení image
 RUN apk del .build-deps
