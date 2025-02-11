@@ -32,7 +32,9 @@ RUN apk del .build-deps
 COPY --from=composer-stage /usr/bin/composer /usr/bin/composer
 
 # Kopírování konfigurace Supervisoru (soubor supervisord.conf musí být ve stejném adresáři)
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisord.ini /etc/supervisor.d/supervisord.ini
+
+RUN mkdir -p /run/nginx
 
 # Nastavení pracovního adresáře
 WORKDIR /var/www/html
