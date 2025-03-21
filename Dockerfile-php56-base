@@ -2,20 +2,16 @@
 FROM composer:2.2 AS composer-stage
 
 # Stage 2: Hlavní image s PHP 5.6
-FROM php:5.6-fpm-alpine
+FROM php:5.6-fpm
+
+RUN echo "deb http://archive.debian.org/debian stretch main" > /etc/apt/sources.list
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-# Instalace runtime závislostí: nginx, supervisor, curl
-RUN apk add --no-cache nginx supervisor curl
+RUN apt-get update
 
-# Instalace build závislostí (skupina .build-deps)
-RUN apk add --no-cache --virtual .build-deps \
-      freetype-dev \
-      libjpeg-turbo-dev \
-      libpng-dev \
-      icu-dev \
-      libxml2-dev
+# Instalace runtime závislostí: nginx, supervisor, curl
+RUN apt-get install -y nginx supervisor curl
 
 RUN install-php-extensions \
             intl \
@@ -34,14 +30,12 @@ RUN install-php-extensions \
             redis \
             zip
 
-# Odstranění build závislostí pro zmenšení image
-RUN apk del .build-deps
 
 # Zkopírování Composeru z předchozí stage
 COPY --from=composer-stage /usr/bin/composer /usr/bin/composer
 
 # Kopírování konfigurace Supervisoru (soubor supervisord.conf musí být ve stejném adresáři)
-COPY supervisord.ini /etc/supervisor.d/supervisord.ini
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 RUN mkdir -p /run/nginx
 

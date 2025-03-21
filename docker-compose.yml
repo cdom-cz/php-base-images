@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile-php56-base
     container_name: php56_app
     ports:
-      - "8080:80"
+      - "8056:80"
 
   php71_app:
     build:
@@ -13,4 +13,4 @@ services:
       dockerfile: Dockerfile-php71-base
     container_name: php71_app
     ports:
-      - "8081:80"
+      - "8071:80"
